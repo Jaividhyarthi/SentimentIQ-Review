@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SentimentIQ — Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/styles.css"/>
+  <style>
+    .analytics-wrap { max-width: 1000px; margin: 0 auto; padding: 40px; }
+    .page-title { font-family: var(--font-display); font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+    .page-title span { color: var(--accent); }
+    .page-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 32px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); text-decoration: none; margin-bottom: 24px; transition: color 0.15s; border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; }
+    .back-link:hover { color: var(--accent); border-color: var(--accent); }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .stat-value { font-family: var(--font-display); font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; color: var(--accent); margin-bottom: 4px; }
+    .stat-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+    .sentiment-totals { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+    .sent-card { border-radius: 14px; padding: 18px; border: 1px solid transparent; }
+    .sent-card.positive { background: var(--positive-bg); border-color: var(--positive-border); }
+    .sent-card.negative { background: var(--negative-bg); border-color: var(--negative-border); }
+    .sent-card.neutral  { background: var(--neutral-bg);  border-color: var(--neutral-border); }
+    .sent-value { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 2px; }
+    .sent-card.positive .sent-value { color: var(--positive); }
+    .sent-card.negative .sent-value { color: var(--negative); }
+    .sent-card.neutral  .sent-value { color: var(--neutral); }
+    .sent-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+    .history-table { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid var(--border); }
+    .table-title { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); }
+    .clear-btn { font-size: 0.72rem; color: var(--negative); background: none; border: 1px solid var(--negative-border); border-radius: 6px; padding: 5px 12px; cursor: pointer; font-family: var(--font-body); transition: all 0.15s; }
+    .clear-btn:hover { background: var(--negative-bg); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { text-align: left; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); padding: 11px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface-2); }
+    tbody td { padding: 11px 16px; font-size: 0.78rem; color: var(--muted); }
+    .mini-bar-wrap { display: flex; gap: 3px; height: 16px; align-items: flex-end; }
+    .mini-bar { border-radius: 2px; min-width: 4px; }
+    .empty-table { text-align: center; padding: 48px; color: var(--dim); font-size: 0.82rem; }
+    @media (max-width: 700px) { .stats-grid { grid-template-columns: 1fr 1fr; } .sentiment-totals { grid-template-columns: 1fr; } .analytics-wrap { padding: 24px; } }
+  </style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="app">
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <div class="logo-mark"><span>S</span></div>
+        <span class="logo-name">Sentiment<em>IQ</em></span>
+      </div>
+    </div>
+    <div class="header-right">
+      <a href="/" class="nav-link">← Analyzer</a>
+    </div>
+  </header>
+
+  <div class="analytics-wrap">
+    <a href="/" class="back-link">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to Analyzer
+    </a>
+
+    <div class="page-title">Analysis <span>Analytics</span></div>
+    <div class="page-sub">Aggregated data from all past analyses.</div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalAnalyses">—</div>
+        <div class="stat-label">Total Analyses</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalReviews">—</div>
+        <div class="stat-label">Reviews Processed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="avgScore">—</div>
+        <div class="stat-label">Avg Sentiment Score</div>
+      </div>
+    </div>
+
+    <div class="sentiment-totals">
+      <div class="sent-card positive">
+        <div class="sent-value" id="totalPositive">—</div>
+        <div class="sent-label">Positive Reviews</div>
+      </div>
+      <div class="sent-card neutral">
+        <div class="sent-value" id="totalNeutral">—</div>
+        <div class="sent-label">Neutral Reviews</div>
+      </div>
+      <div class="sent-card negative">
+        <div class="sent-value" id="totalNegative">—</div>
+        <div class="sent-label">Negative Reviews</div>
+      </div>
+    </div>
+
+    <div class="history-table">
+      <div class="table-header">
+        <div class="table-title">Past Analyses</div>
+        <button class="clear-btn" onclick="clearAll()">Clear All</button>
+      </div>
+      <div id="tableWrap"><div class="empty-table">Loading...</div></div>
+    </div>
+  </div>
+
+  <footer style="padding:16px 40px; border-top:1px solid var(--border); font-size:0.68rem; color:var(--dim); text-align:center;">
+    SentimentIQ — Powered by VADER Sentiment · SQLite Database
+  </footer>
+</div>
+
+<script>
+async function loadData() {
+  try {
+    const [histRes, statsRes] = await Promise.all([fetch('/api/history'), fetch('/api/stats')]);
+    const history = await histRes.json();
+    const stats = await statsRes.json();
+    renderStats(stats);
+    renderTable(history);
+  } catch(e) {
+    document.getElementById('tableWrap').innerHTML = '<div class="empty-table">Could not load data.</div>';
+  }
+}
+
+function renderStats(s) {
+  document.getElementById('totalAnalyses').textContent = s.analyses;
+  document.getElementById('totalReviews').textContent = s.total_reviews;
+  document.getElementById('avgScore').textContent = s.avg_score + '%';
+  document.getElementById('totalPositive').textContent = s.total_positive;
+  document.getElementById('totalNeutral').textContent = s.total_neutral;
+  document.getElementById('totalNegative').textContent = s.total_negative;
+}
+
+function renderTable(history) {
+  if (!history.length) {
+    document.getElementById('tableWrap').innerHTML = '<div class="empty-table">No analyses yet. Go analyze some reviews!</div>';
+    return;
+  }
+
+  const sentColor = { Positive:'#1a7a4a', Neutral:'#7a6a1a', Negative:'#7a1a1a' };
+
+  const rows = history.map(r => {
+    const total = r.total || 1;
+    const posW = Math.round(r.positive / total * 60);
+    const neuW = Math.round(r.neutral  / total * 60);
+    const negW = Math.round(r.negative / total * 60);
+    const dominant = r.positive >= r.negative && r.positive >= r.neutral ? 'Positive'
+                   : r.negative >= r.positive && r.negative >= r.neutral ? 'Negative' : 'Neutral';
+    return `<tr>
+      <td style="color:var(--dim); font-size:0.7rem">${r.timestamp}</td>
+      <td style="font-weight:500; color:var(--ink)">${r.source || 'Manual'}</td>
+      <td>${r.total}</td>
+      <td>
+        <div class="mini-bar-wrap">
+          <div class="mini-bar" style="background:#1a7a4a; height:${Math.max(posW,4)}px; width:${Math.max(posW,4)}px" title="${r.positive} positive"></div>
+          <div class="mini-bar" style="background:#7a6a1a; height:${Math.max(neuW,4)}px; width:${Math.max(neuW,4)}px" title="${r.neutral} neutral"></div>
+          <div class="mini-bar" style="background:#7a1a1a; height:${Math.max(negW,4)}px; width:${Math.max(negW,4)}px" title="${r.negative} negative"></div>
+        </div>
+      </td>
+      <td><span style="font-size:0.7rem; font-weight:600; color:${sentColor[dominant]}">${dominant}</span></td>
+      <td style="font-weight:600; color:var(--accent)">${Math.round((r.avg_score + 1)/2*100)}%</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tableWrap').innerHTML = `
+    <table>
+      <thead><tr><th>Timestamp</th><th>Source</th><th>Reviews</th><th>Breakdown</th><th>Dominant</th><th>Score</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+async function clearAll() {
+  if (!confirm('Delete all analysis history?')) return;
+  await fetch('/api/clear', { method: 'DELETE' });
+  loadData();
+}
+
+loadData();
+</script>
+</body>
+</html>

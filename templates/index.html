@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SentimentIQ — Review Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/static/css/styles.css"/>
+</head>
+<body>
+
+<div class="noise"></div>
+
+<div class="app">
+
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <div class="logo-mark">
+          <span>S</span>
+        </div>
+        <span class="logo-name">Sentiment<em>IQ</em></span>
+      </div>
+    </div>
+    <div class="header-right">
+      <a href="/history" class="nav-link">Analytics →</a>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Input Panel -->
+    <section class="input-panel">
+
+      <div class="panel-intro">
+        <div class="eyebrow">Review Intelligence</div>
+        <h1>Understand what<br/>customers <em>really</em> think</h1>
+        <p>Paste any number of reviews. Get instant sentiment breakdown, themes, and actionable insights.</p>
+      </div>
+
+      <div class="input-block">
+        <div class="input-meta">
+          <label for="sourceInput">Source Label <span>(optional)</span></label>
+          <input type="text" id="sourceInput" placeholder="e.g. Amazon, Google Reviews, App Store..." class="source-input"/>
+        </div>
+
+        <div class="textarea-wrap">
+          <textarea id="reviewInput" placeholder="Paste your reviews here — one per line.
+
+Example:
+The product quality is amazing, arrived on time!
+Terrible experience, customer service was unhelpful.
+Decent product for the price, nothing special.
+Absolutely love it, will buy again!"></textarea>
+          <div class="textarea-footer">
+            <span id="reviewCount">0 reviews detected</span>
+            <button class="clear-input-btn" onclick="clearInput()">Clear</button>
+          </div>
+        </div>
+
+        <div class="sample-btns">
+          <span class="sample-label">Try a sample:</span>
+          <button class="sample-btn" onclick="loadSample('ecommerce')">E-commerce</button>
+          <button class="sample-btn" onclick="loadSample('restaurant')">Restaurant</button>
+          <button class="sample-btn" onclick="loadSample('app')">Mobile App</button>
+        </div>
+
+        <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">
+          <span class="btn-text">Analyze Reviews</span>
+          <span class="btn-loading" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+            Analyzing...
+          </span>
+        </button>
+      </div>
+
+    </section>
+
+    <!-- Results Panel -->
+    <section class="results-panel" id="resultsPanel">
+
+      <div class="empty-state" id="emptyState">
+        <div class="empty-graphic">
+          <div class="empty-circle c1"></div>
+          <div class="empty-circle c2"></div>
+          <div class="empty-circle c3"></div>
+        </div>
+        <h3>Results appear here</h3>
+        <p>Paste reviews on the left and hit Analyze to see the full breakdown.</p>
+      </div>
+
+      <div id="resultsContent" style="display:none">
+
+        <!-- Overall score -->
+        <div class="score-card" id="scoreCard">
+          <div class="score-left">
+            <div class="score-label">Overall Sentiment</div>
+            <div class="score-value" id="overallScore">0</div>
+            <div class="score-sub">out of 100</div>
+          </div>
+          <div class="score-right">
+            <div class="overall-badge" id="overallBadge">Positive</div>
+            <div class="score-meta" id="scoreMeta">Based on 0 reviews</div>
+          </div>
+        </div>
+
+        <!-- Breakdown bars -->
+        <div class="breakdown-card">
+          <div class="card-title">Sentiment Breakdown</div>
+          <div class="breakdown-bars">
+            <div class="breakdown-row">
+              <div class="breakdown-label positive-text">Positive</div>
+              <div class="breakdown-track">
+                <div class="breakdown-fill positive-fill" id="positiveFill" style="width:0%"></div>
+              </div>
+              <div class="breakdown-count" id="positiveCount">0</div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-label neutral-text">Neutral</div>
+              <div class="breakdown-track">
+                <div class="breakdown-fill neutral-fill" id="neutralFill" style="width:0%"></div>
+              </div>
+              <div class="breakdown-count" id="neutralCount">0</div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-label negative-text">Negative</div>
+              <div class="breakdown-track">
+                <div class="breakdown-fill negative-fill" id="negativeFill" style="width:0%"></div>
+              </div>
+              <div class="breakdown-count" id="negativeCount">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Themes -->
+        <div class="themes-card" id="themesCard" style="display:none">
+          <div class="card-title">Detected Themes</div>
+          <div class="themes-list" id="themesList"></div>
+        </div>
+
+        <!-- Keywords -->
+        <div class="keywords-card" id="keywordsCard" style="display:none">
+          <div class="card-title">Top Keywords</div>
+          <div class="keywords-list" id="keywordsList"></div>
+        </div>
+
+        <!-- Individual reviews -->
+        <div class="reviews-card">
+          <div class="card-title">Individual Reviews</div>
+          <div class="reviews-list" id="reviewsList"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
